@@ -48,8 +48,20 @@
                                 <i class="bi bi-grid-fill"></i>
                                 <span>Dashboard</span>
                             </a>
-                            
+                        </li>
 
+                        <li
+                            class="sidebar-item  has-sub">
+                            <a href="#" class='sidebar-link'>
+                                <i class="bi bi-pen-fill"></i>
+                                <span>Credito</span>
+                            </a>
+                            
+                            <ul class="submenu ">
+                                <li class="submenu-item  ">
+                                    <a href="{{url('credito/servicio-financiero')}}" class="submenu-link">Solicitud</a>
+                                </li>
+                            </ul>
                         </li>
 
                         <li class="sidebar-item  ">
@@ -58,12 +70,6 @@
                                 <span>Cerrar Session</span>
                             </a>
                         </li>
-                        
-                        
-                     
-                        
-                       
-                        
                     </ul>
                 </div>
             </div>
