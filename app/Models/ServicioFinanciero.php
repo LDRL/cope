@@ -18,8 +18,7 @@ class ServicioFinanciero extends Model
         'periodo_gracia',
         'tipo_servicio_id',
         'producto_id',
-        'estado',
-        'pesona_id'
+        'estado'
     ];
 
     //Relacion con personas

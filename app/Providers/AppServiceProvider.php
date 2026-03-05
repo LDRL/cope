@@ -4,6 +4,9 @@ namespace App\Providers;
 
 use Illuminate\Support\ServiceProvider;
 
+use App\Repositories\Contracts\PersonaRepositoryInterface;
+use App\Repositories\PersonaRepository;
+
 class AppServiceProvider extends ServiceProvider
 {
     /**
@@ -11,7 +14,11 @@ class AppServiceProvider extends ServiceProvider
      */
     public function register(): void
     {
-        //
+        //Para poder ser uso de la interface
+        $this->app->bind(
+        PersonaRepositoryInterface::class,
+        PersonaRepository::class
+    );
     }
 
     /**

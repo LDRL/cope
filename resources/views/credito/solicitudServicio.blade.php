@@ -196,8 +196,6 @@
     </div>
 </div>
 
-<script src="{{asset('assets/compiled/js/app.js')}}"></script>
-
 <script src="{{asset('assets/extensions/flatpickr/flatpickr.min.js')}}"></script>
 <script src="{{asset('assets/extensions/flatpickr/l10n/es.js')}}"></script>
 

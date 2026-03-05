@@ -14,10 +14,10 @@ return new class extends Migration
         Schema::create('persona_servicio', function (Blueprint $table) {
             $table->id();
 
-            $table->foreignId('persona_id')->constrained('personas')->onDelete('cascade');
-            $table->foreignId('servicio_financiero_id')->constrained('servicio_financiero')->onDelete('cascade');
+            $table->foreignId('id_persona')->constrained('personas')->onDelete('cascade');
+            $table->foreignId('id_servicio_financiero')->constrained('servicio_financiero')->onDelete('cascade');
+            $table->foreignId('id_tipo_persona')->constrained('tipo_persona')->onDelete('cascade');
             $table->timestamps(); // opcional, para created_at y updated_at
-            $table->unique(['persona_id', 'servicio_financiero_id']);
         });
     }
 

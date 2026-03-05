@@ -4,7 +4,6 @@
 
 <link rel="stylesheet" href="{{asset('assets/extensions/flatpickr/flatpickr.min.css')}}">
 <link rel="stylesheet" href="{{asset('assets/extensions/choices.js/public/assets/styles/choices.css')}}">
-
 <div class="page-heading">
     <div class="col-12">
         <div class="card">
@@ -19,6 +18,8 @@
                         @csrf
                         <input type="hidden" name="servicio_id" value="{{ $servicio->id ?? '' }}">
                         <input type="hidden" name="id" value="{{ $persona->id ?? '' }}">
+                        <input type="hidden" name="idPersonaServicio" value="{{$personaServicio->id ?? ''}}">
+                        
                         <div class="row">
                             <div class="col-lg-6 col-md-12 col-sm-12 col-xs-12">
                                 <label>Nombre</label>
@@ -278,8 +279,6 @@
         </div>
     </div>
 </div>
-
-<script src="{{asset('assets/compiled/js/app.js')}}"></script>
 
 <script src="{{asset('assets/extensions/flatpickr/flatpickr.min.js')}}"></script>
 <script src="{{asset('assets/extensions/flatpickr/l10n/es.js')}}"></script>

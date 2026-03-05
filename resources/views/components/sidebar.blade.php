@@ -43,7 +43,7 @@
                         <li class="sidebar-title">Menu</li>
                         
                         <li
-                            class="sidebar-item active ">
+                            class="sidebar-item ">
                             <a href="{{ route('home') }}" class='sidebar-link'>
                                 <i class="bi bi-grid-fill"></i>
                                 <span>Dashboard</span>
@@ -60,6 +60,9 @@
                             <ul class="submenu ">
                                 <li class="submenu-item  ">
                                     <a href="{{url('credito/servicio-financiero')}}" class="submenu-link">Solicitud</a>
+                                </li>
+                                <li class="submenu-item  ">
+                                    <a href="{{url('credito/index')}}" class="submenu-link">Listado</a>
                                 </li>
                             </ul>
                         </li>

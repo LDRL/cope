@@ -32,6 +32,7 @@ Route::prefix('catalogos')->group(function () {
 
 
 Route::prefix('credito')->group(function () {
+    Route::get('index', [SolicitudController::class, 'index']);
 	Route::get('servicio-financiero', [SolicitudController::class, 'mostrarPaso1'])->name('solicitud-credito.servicio-financiero');
     Route::post('servicio-financiero', [SolicitudController::class, 'paso1']);
 
@@ -43,7 +44,8 @@ Route::prefix('credito')->group(function () {
     
     
     //Paso 3
-    Route::get('solicitud-datosEmprendimiento/{id?}', [SolicitudController::class, 'mostrarPaso3'])
+    Route::post('solicitud-datosEmprendimiento', [SolicitudController::class, 'paso3']);
+    Route::get('solicitud-datosEmprendimiento/{idPersona?}/{idServicioFinanciero?}', [SolicitudController::class, 'mostrarPaso3'])
     ->name('solicitud-credito.datos-emprendimiento');
 
 });

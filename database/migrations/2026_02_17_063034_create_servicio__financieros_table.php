@@ -28,14 +28,14 @@ return new class extends Migration
             $table->unsignedBigInteger('tipo_servicio_id');
             $table->unsignedBigInteger('producto_id');
             $table->string('estado',30);
-            $table->unsignedBigInteger('persona_id')->nullable();
+            //$table->unsignedBigInteger('persona_id')->nullable();
 
             // Foreign key (si tienes tabla oficinas)
             $table->foreign('oficina_id')->references('id')->on('oficinas')->onDelete('cascade');
             $table->foreign('destino_id')->references('id')->on('destinos')->onDelete('cascade');
             $table->foreign('tipo_servicio_id')->references('id')->on('tipo_servicios')->onDelete('cascade');
             $table->foreign('producto_id')->references('id')->on('productos')->onDelete('cascade');
-            $table->foreign('persona_id')->references('id')->on('personas')->onDelete('cascade');
+            //$table->foreign('persona_id')->references('id')->on('personas')->onDelete('cascade');
 
             $table->timestamps();
         });

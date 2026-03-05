@@ -56,4 +56,10 @@ class Persona extends Model
             'servicio_financiero_id' // clave foránea del otro modelo
         )->withTimestamps(); // si quieres usar created_at/updated_at
     }
+
+    //
+    public function personaServicio()
+    {
+        return $this->hasOne(PersonaServicio::class, 'id_persona');
+    }
 }

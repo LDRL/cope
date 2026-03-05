@@ -26,7 +26,11 @@ class DatabaseSeeder extends Seeder
             ProductoSeeder::class,
             TipoServicioSeeder::class,
             UserSeeder::class,
-            CasaTipoSeeder::class
+            CasaTipoSeeder::class,
+            ActividadEconomicaSeeder::class,
+            AspectoFormalizacionSeeder::class,
+            RedesSocialesSeeder::class,
+            TipoPersonaSeeder::class
         ]);
     }
 }
