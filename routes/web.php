@@ -32,7 +32,8 @@ Route::prefix('catalogos')->group(function () {
 
 
 Route::prefix('credito')->group(function () {
-    Route::get('index', [SolicitudController::class, 'index']);
+    Route::get('pendiente', [SolicitudController::class, 'pendiente'])->name('solicitud-pendiente');
+    Route::get('completado', [SolicitudController::class, 'completado'])->name('solicitud-completado');
 
     Route::post('solicitud-datosGenerales', [SolicitudController::class, 'paso1']);
     Route::get('solicitud-datosGenerales/{id?}', [SolicitudController::class, 'mostrarPaso1'])
@@ -58,6 +59,11 @@ Route::prefix('credito')->group(function () {
     Route::post('solicitud-datosFiador', [SolicitudController::class, 'paso5']);
     Route::get('solicitud-datosFiador/{idServicioFinanciero?}', [SolicitudController::class, 'mostrarPaso5'])
     ->name('solicitud-credito.datos-fiador');
+
+    //Paso 6
+    Route::post('solicitud-datosReferencia', [SolicitudController::class, 'paso6']);
+    Route::get('solicitud-datosReferencia/{idServicioFinanciero?}', [SolicitudController::class, 'mostrarPaso6'])
+    ->name('solicitud-credito.datos-referencia');
 
 });
 

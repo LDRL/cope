@@ -36,7 +36,7 @@
                                         <td>{{$ser->nombre.' '. $ser->apellido}}</td>
                                         <td>{{$ser->personaServicio->servicioFinanciero->no_beneficiario ?? '' }}</td>
                                         <td>{{$ser->personaServicio->servicioFinanciero->no_servicio ?? '' }}</td>       
-                                        <td>{{$ser->personaServicio->servicioFinanciero->estado ?? '' }}</td>                                 
+                                        <td>{{$ser->personaServicio->servicioFinanciero->estado ?? 'servicio_financiero' }}</td>                                 
                                         <td></td>
                                     </tr>
 

@@ -82,4 +82,10 @@ class Persona extends Model
     {
         return $this->hasMany(PersonaDireccion::class, 'id_persona');
     }
+
+    public function referencias()
+    {
+        return $this->hasMany(PersonaReferencia::class, 'id_persona')
+        ->orderBy('id_tipo_referencia');
+    }
 }

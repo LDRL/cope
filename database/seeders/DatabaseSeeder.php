@@ -31,7 +31,8 @@ class DatabaseSeeder extends Seeder
             RedesSocialesSeeder::class,
             TipoPersonaSeeder::class,
             TipoTelefonoSeeder::class,
-            TipoDireccionSeeder::class
+            TipoDireccionSeeder::class,
+            TipoReferenciaSeeder::class,
         ]);
     }
 }

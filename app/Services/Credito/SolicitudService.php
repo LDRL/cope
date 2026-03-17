@@ -6,6 +6,7 @@ use App\Models\ServicioFinanciero;
 use App\Models\PersonaServicio;
 use App\Models\Emprendimiento;
 use App\Models\PersonaDireccion;
+use App\Models\PersonaReferencia;
 use App\Models\PersonaTelefono;
 use Illuminate\Support\Facades\DB;
 
@@ -133,6 +134,49 @@ class SolicitudService
         }
 
         $persona->telefonos()->createMany($telefonos);
+    }
+
+
+    public function guardarReferenciaPersona(array $referencias, int $personaId)
+    {
+        $idsGuardados = [];
+
+        foreach ($referencias as $ref) {
+
+            $data = [
+                'nombre' => $ref['nombre'],
+                'apellido' => $ref['apellido'],
+                'numero_telefono' => $ref['numero_telefono'],
+                'tipo_relacion' => $ref['tipo_relacion'],
+                'id_tipo_referencia' => $ref['id_tipo_referencia'],
+                'id_persona' => $personaId
+            ];
+
+            // updateOrCreate
+            if (!empty($ref['id'])) {
+                $referencia = PersonaReferencia::updateOrCreate(
+                    ['id' => $ref['id']],
+                    $data
+                );
+            } else {
+                $referencia = PersonaReferencia::create($data);
+            }
+
+            $idsGuardados[] = $referencia->id;
+        }
+
+        // eliminar referencias que ya no vienen en el request
+        PersonaReferencia::where('id_persona', $personaId)
+            ->whereNotIn('id', $idsGuardados)
+            ->delete();
+
+    }
+
+    public function actualizarEstadoServicio(int $idServicio, string $estado)
+    {
+        $servicio = ServicioFinanciero::findOrFail($idServicio);
+        $servicio->estado = $estado;
+        $servicio->save();
     }
 
 }

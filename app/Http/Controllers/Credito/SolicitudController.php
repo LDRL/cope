@@ -23,6 +23,7 @@ use App\Repositories\NacionalidadRepository;
 use App\Repositories\EstadoCivilRepository;
 use App\Repositories\EtniaRepository;
 use App\Repositories\TipoTelefonoRepository;
+use App\Repositories\TipoReferenciaRepository;
 
 use App\Services\Credito\SolicitudService;
 
@@ -42,6 +43,7 @@ class SolicitudController extends Controller
     protected $personaRepo;
     protected $solicitudService;
     protected $tipoTelefonoRepo;
+    protected $tipoReferenciaRepo;
 
     public function __construct(
         OficinaRepository $oficinaRepo,
@@ -57,7 +59,8 @@ class SolicitudController extends Controller
         AspectoFormalizacion $aspectoFormalizacionRepo,
         PersonaRepositoryInterface $personaRepo,
         SolicitudService $solicitudService,
-        TipoTelefonoRepository $tipoTelefonoRepo
+        TipoTelefonoRepository $tipoTelefonoRepo,
+        TipoReferenciaRepository $tipoReferenciaRepo
     ){
         $this->oficinaRepo = $oficinaRepo;
         $this->destinoRepo = $destinoRepo;
@@ -73,15 +76,27 @@ class SolicitudController extends Controller
         $this->personaRepo = $personaRepo;
         $this->solicitudService = $solicitudService;
         $this->tipoTelefonoRepo = $tipoTelefonoRepo;
+        $this->tipoReferenciaRepo = $tipoReferenciaRepo;
     }
 
     // =======================
-    // LISTADO DE PERSONAS / SERVICIOS
+    // LISTADO DE PERSONAS / SERVICIOS 
+    // QUE ESTAN EN UNA ETAPA DE INGRESO DE INFORMACION
     // =======================
-    public function index()
+    public function pendiente()
     {
-        $servicios = $this->personaRepo->getPersonasPaginated(10);
-        return view('credito.index', compact('servicios'));
+        $servicios = $this->personaRepo->getPersonasPaginated(10,'pendiente');
+        return view('credito.solicitudPendiente', compact('servicios'));
+    }
+
+    // =======================
+    // LISTADO DE PERSONAS / SERVICIOS 
+    // QUE TERMINARON DE INGRESAR LA INFORMACION
+    // =======================
+    public function completado()
+    {
+        $servicios = $this->personaRepo->getPersonasPaginated(10,'completado');
+        return view('credito.solicitudCompletado', compact('servicios'));
     }
 
     // =======================
@@ -403,6 +418,8 @@ class SolicitudController extends Controller
 
         //$this->solicitudService->guardarTelefonosPersona($personaConyugue, $request);
         $idServicio = $request->id_servicio;
+
+        $this->solicitudService->actualizarEstadoServicio($idServicio, 'datos_fiador');
         return redirect()->route(
             'solicitud-credito.datos-fiador',
             $idServicio
@@ -508,12 +525,57 @@ class SolicitudController extends Controller
             $this->solicitudService->guardarTelefonosPersona($personaConyugue, $request);
         }
 
-        //$this->solicitudService->guardarTelefonosPersona($personaConyugue, $request);
         $idServicio = $request->id_servicio;
+        $this->solicitudService->actualizarEstadoServicio($idServicio, 'datos_referencia');
         return redirect()->route(
-            'solicitud-credito.datos-fiador',
+            'solicitud-credito.datos-referencia',
             $idServicio
         );
+    }
+
+    //Mostrar paso 5
+    //Mostrar datos del fiador
+    public function mostrarPaso6($idServicio = null)
+    {
+        $persona = null;
+
+        $servicio  = DB::table('persona_servicio')
+            ->select('id','id_persona')
+            ->where('id_servicio_financiero','=',$idServicio)
+            ->where('id_tipo_persona','=',1)
+            ->first();
+    
+        $tipoReferencias = $this->tipoReferenciaRepo->all();
+        $persona = Persona::find($servicio->id_persona ?? null);
+
+        return view('credito.solicitudReferencia', compact(
+            'idServicio',
+            'tipoReferencias',
+            'servicio',
+            'persona'
+        ));
+    }
+
+     // PASO 3: Guardar Conyugue
+    public function paso6(Request $request)
+    {
+        $request->validate([
+            'referencias.*.nombre' => 'required|max:50',
+            'referencias.*.apellido' => 'required|max:50',
+            'referencias.*.numero_telefono' => 'required|digits:8',
+            'referencias.*.tipo_relacion' => 'required|max:50',
+            'referencias.*.id_tipo_referencia' => 'required|exists:tipo_referencia,id',
+        ]);
+
+        $this->solicitudService->guardarReferenciaPersona(
+            $request->referencias,
+            $request->id_persona
+        );
+
+        $idServicio = $request->id_servicio;
+        $this->solicitudService->actualizarEstadoServicio($idServicio, 'completado');
+
+        return redirect()->route('solicitud-completado');
     }
 
 }

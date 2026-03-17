@@ -246,43 +246,61 @@
 
                                 <!-- Contenedor donde se agregan los telefonos dinámicamente -->
                                 <div id="telefonos-container">
-                                    @if(isset($persona))
-                                        @foreach($persona->telefonos as $index => $tel)
-                                            <div class="row mt-2 tel-item" data-id="{{ $index }}">
-                                                <div class="col-md-4">
-                                                    <select name="telefonos_tipo[]" class="form-select tel-select" required>
-                                                        <option value="">Seleccione Telefono</option>
-                                                        @foreach($tipoTelefonos as $opcion)
-                                                            <option value="{{ $opcion->id }}"
-                                                                {{ $opcion->id == $tel->id_tipo_telefono ? 'selected' : '' }}>
-                                                                {{ $opcion->nombre }}
-                                                            </option>
-                                                        @endforeach
-                                                    </select>
-                                                </div>
 
-                                                <div class="col-md-4">
-                                                    <input 
-                                                        type="number"
-                                                        name="telefonos_numero[]"
-                                                        class="form-control"
-                                                        value="{{ $tel->numero }}"
-                                                        maxlength="8"
-                                                        required
-                                                        pattern="[0-9]{8}"
-                                                    >
-                                                </div>
+                                    @php
+                                        $oldTelefonosTipo = old('telefonos_tipo', isset($persona) ? $persona->telefonos->pluck('id_tipo_telefono')->toArray() : []);
+                                        $oldTelefonosNumero = old('telefonos_numero', isset($persona) ? $persona->telefonos->pluck('numero')->toArray() : []);
+                                    @endphp
 
-                                                <div class="col-md-2">
-                                                    <button type="button" class="btn btn-danger eliminar-tel">X</button>
-                                                </div>
-                                            </div>
-                                        @endforeach
+                                    @if(empty($oldTelefonosTipo))
+                                        <script>
+                                            document.addEventListener('DOMContentLoaded', function () {
+                                                document.getElementById('agregarTelefono').click();
+                                            });
+                                        </script>
                                     @endif
+                                    
+                                    @foreach($oldTelefonosTipo as $index => $tipo)
+                                    <div class="row mt-2 tel-item">
+                                        <div class="col-md-4">
+                                            <select name="telefonos_tipo[]" class="form-select tel-select" required>
+                                                <option value="">Seleccione Telefono</option>
+
+                                                @foreach($tipoTelefonos as $opcion)
+                                                    <option value="{{ $opcion->id }}"
+                                                        {{ $opcion->id == $tipo ? 'selected' : '' }}>
+                                                        {{ $opcion->nombre }}
+                                                    </option>
+                                                @endforeach
+                                            </select>
+
+                                            @error("telefonos_tipo.$index")
+                                                <span class="text-danger">{{ $message }}</span>
+                                            @enderror
+                                        </div>
+
+                                        <div class="col-md-4">
+                                            <input 
+                                                type="text"
+                                                name="telefonos_numero[]"
+                                                class="form-control"
+                                                value="{{ $oldTelefonosNumero[$index] ?? '' }}"
+                                            >
+
+                                            @error("telefonos_numero.$index")
+                                                <span class="text-danger">{{ $message }}</span>
+                                            @enderror
+                                        </div>
+
+                                        <div class="col-md-2">
+                                            <button type="button" class="btn btn-danger eliminar">X</button>
+                                        </div>
+                                    </div>
+                                    @endforeach
                                 </div>
 
                                 <!-- Botón para agregar más telefonos -->
-                                <button type="button" id="agregarTelefono" class="btn btn-sm btn-success mt-2">
+                                <button type="button" id="agregarTelefono" class="btn btn-sm btn-success mt-2 mb-2">
                                     + Agregar Telefono
                                 </button>
                             </div>
@@ -290,7 +308,11 @@
 
                         <!-- Agrega aquí los campos restantes -->
 
-                        <button type="submit" class="btn btn-primary">Siguiente</button>
+                        <div class="row" style="margin-top:10px;">
+                            <div style="display: flex; justify-content: right;">
+                                <button type="submit" class="btn btn-primary">Siguiente</button>
+                            </div>
+                        </div>
                     </form>
                 </div>
             </div>
