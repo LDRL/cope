@@ -1,44 +1,54 @@
 @extends('layouts.app')
 
 @section('content')
-
 <link rel="stylesheet" href="{{asset('assets/extensions/flatpickr/flatpickr.min.css')}}">
 <link rel="stylesheet" href="{{asset('assets/extensions/choices.js/public/assets/styles/choices.css')}}">
-<div class="page-heading">
+
+<div class="">
     <div class="col-12">
         <div class="card">
             <div class="card-header">
-                <h1>Datos Generales Del(la) Beneficiario(a)</h1>
+                <h1>Datos Generales Del Conyugue</h1>
             </div>
 
             <div class="card-content">
                 <div class="card-body">
-
-                    <form action="{{ route('solicitud-credito.datos-generales') }}" method="POST">
+                    <form action="{{ route('solicitud-credito.datos-conyugue') }}" method="POST">
                         @csrf
-                        <input type="hidden" name="id" value="{{ $persona->id ?? '' }}">
+                        <input type="hidden" name="id_servicio" value="{{ $idServicio ?? '' }}">
+                        <input type="hidden" name="id_persona" value="{{ $persona->id ?? '' }}">
+                        <input type="hidden" name="personaServicioId" value="{{$conyugueServicio->id ?? ''}}">
+
                         
                         <div class="row">
                             <div class="col-lg-6 col-md-12 col-sm-12 col-xs-12">
                                 <label>Nombre</label>
                                 <input type="text" name="nombre" class="form-control" 
                                     value="{{ old('nombre', $persona->nombre ?? '') }}">
+
+                                @error('nombre')
+                                    <span class="text-danger">{{ $message }}</span>
+                                @enderror
                             </div>
 
                             <div class="col-lg-6 col-md-12 col-sm-12 col-xs-12">
                                 <label>Apellido</label>
                                 <input type="text" name="apellido" class="form-control" 
                                     value="{{ old('apellido', $persona->apellido ?? '') }}">
+
+                                @error('apellido')
+                                    <span class="text-danger">{{ $message }}</span>
+                                @enderror
                             </div>
                         </div>
 
                         <div class="row">
                             <div class="col-lg-6 col-md-12 col-sm-12 col-xs-12">
-                                <label>Fecha De Nacimiento</label>
-                                <input type="text" name="fecha_nacimiento" class="form-control" id="fecha_nacimiento"
-                                value="{{ old('fecha_nacimiento', isset($persona->fecha_nacimiento) ? \Carbon\Carbon::parse($persona->fecha_nacimiento)->format('d/m/Y') : '') }}">
+                                <label>Numero De DPI</label>
+                                <input type="text" name="numero_dpi" class="form-control" maxlength="13"
+                                    value="{{ old('numero_dpi', $persona->numero_dpi ?? '') }}">
 
-                                @error('fecha_nacimiento')
+                                @error('numero_dpi')
                                     <span class="text-danger">{{ $message }}</span>
                                 @enderror
                             </div>
@@ -64,7 +74,17 @@
                         </div>
 
                         <div class="row">
-                            <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
+                            <div class="col-lg-6 col-md-12 col-sm-12 col-xs-12">
+                                <label>Fecha De Nacimiento</label>
+                                <input type="text" name="fecha_nacimiento" class="form-control" id="fecha_nacimiento"
+                                value="{{ old('fecha_nacimiento', isset($persona->fecha_nacimiento) ? \Carbon\Carbon::parse($persona->fecha_nacimiento)->format('d/m/Y') : '') }}">
+
+                                @error('fecha_nacimiento')
+                                    <span class="text-danger">{{ $message }}</span>
+                                @enderror
+                            </div>
+
+                            <div class="col-lg-6 col-md-12 col-sm-12 col-xs-12">
                                 <label>Lugar De Nacimiento</label>
                                 <input type="text" name="lugar_nacimiento" class="form-control" 
                                     value="{{ old('lugar_nacimiento', $persona->lugar_nacimiento ?? '') }}">
@@ -77,54 +97,18 @@
                                 <select class="choices form-select" 
                                     id="id_nacionalidad" 
                                     name="id_nacionalidad">
-
                                     <option value="">-- Seleccione --</option>
-
                                     @foreach($nacionalidades as $nac)
                                         <option value="{{ $nac->id }}"
                                             {{ old('id_nacionalidad', $persona->id_nacionalidad ?? '') == $nac->id ? 'selected' : '' }}>
                                             {{ $nac->nombre }}
                                         </option>
                                     @endforeach
-
                                 </select>
-
                                 @error('id_nacionalidad')
                                     <span class="text-danger">{{ $message }}</span>
                                 @enderror
                             </div>
-                            
-                            <div class="col-lg-6 col-md-12 col-sm-12 col-xs-12">
-                                <label>Numero De DPI</label>
-                                <input type="text" name="numero_dpi" class="form-control" maxlength="13"
-                                    value="{{ old('numero_dpi', $persona->numero_dpi ?? '') }}">
-
-                                @error('numero_dpi')
-                                    <span class="text-danger">{{ $message }}</span>
-                                @enderror
-                            </div>
-                        </div>
-
-                        <div class="row">
-                            <div class="col-lg-6 col-md-12 col-sm-12 col-xs-12">
-                                <label>Etnia</label>
-                                <select class="choices form-select" id="id_etnia" name="id_etnia">
-                                    <option value="">-- Seleccione --</option>                                    
-                                    @if (isset($etnias))
-                                    @foreach($etnias as $tip)
-                                    <option value="{{ $tip->id }}"
-                                        {{ old('id_etnia', $persona->id_etnia ?? '') == $tip->id ? 'selected' : '' }}>
-                                        {{ $tip->nombre }}
-                                    </option>
-                                    @endforeach
-                                    @endif
-                                </select>
-
-                                @error('id_etnia')
-                                    <span class="text-danger">{{ $message }}</span>
-                                @enderror                             
-                            </div>
-                            
                             <div class="col-lg-6 col-md-12 col-sm-12 col-xs-12">
                                 <label>Estado Civil</label>
                                 <select class="choices form-select" id="id_estado_civil" name="id_estado_civil">
@@ -168,35 +152,29 @@
                         </div>
 
                         <div class="row">
-                            <div class="col-lg-6 col-md-12 col-sm-12 col-xs-12">
-                                <label class="control-label">No. De Dependientes</label>
-                                <input type="number" name="no_dependientes" class="form-control" min="0" value="{{ old('no_dependientes', $persona->no_dependientes ?? 0) }}">
-                                @error('no_dependientes')
-                                    <span class="text-danger">{{ $message }}</span>
-                                @enderror
-                            </div>
+                            <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
+                                <label>Dirección Domiciliar</label>
+                                <input type="text" name="direcciones[1][direccion]" class="form-control" 
+                                    value="{{ old('direcciones.1.direccion', optional($persona?->direcciones->where('id_tipo_direccion',1)->first())->direccion) }}">
 
-                            <div class="col-lg-6 col-md-12 col-sm-12 col-xs-12">
-                                <label>% De Aporte Familiar </label>
-                                <div class="input-group mb-3">
-                                    <input type="number" name="porcentaje_de_aporte_familiar" class="form-control" min="0" value="{{ old('porcentaje_de_aporte_familiar', $servicio->porcentaje_de_aporte_familiar ?? 0) }}">
-                                    <span class="input-group-text">%</span>
-                                </div>
-                                @error('porcentaje_de_aporte_familiar')
+                                @error('direcciones.1.direccion')
                                     <span class="text-danger">{{ $message }}</span>
                                 @enderror
                             </div>
                         </div>
 
                         <div class="row">
-                            <div class="col-lg-6 col-md-12 col-sm-12 col-xs-12">
-                                <label class="control-label">Tiempo De Residir En Esta Dirección</label>
-                                <input type="number" name="tiempo_residencia" class="form-control" min="0" value="{{ old('tiempo_residencia', $persona->tiempo_residencia ?? 0) }}">
-                                @error('tiempo_residencia')
+                            <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
+                                <label>Referencia De Dirección</label>
+                                <input type="text" name="direcciones[1][referencia]" class="form-control"
+                                    value="{{ old('direcciones.1.referencia', optional($persona?->direcciones->where('id_tipo_direccion',1)->first())->referencia) }}">
+                                @error('direcciones.1.referencia')
                                     <span class="text-danger">{{ $message }}</span>
                                 @enderror
                             </div>
+                        </div>
 
+                        <div class="row">
                             <div class="col-lg-6 col-md-12 col-sm-12 col-xs-12">
                                 <label>La Casa En Que Vive Es</label>
                                 <select class="choices form-select" id="id_casa_tipo" name="id_casa_tipo">
@@ -212,29 +190,6 @@
                                 </select>
 
                                 @error('id_casa_tipo')
-                                    <span class="text-danger">{{ $message }}</span>
-                                @enderror
-                            </div>
-                        </div>
-
-                        <div class="row">
-                            <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
-                                <label>Dirección Domiciliar</label>
-                                <input type="text" name="direcciones[1][direccion]" class="form-control" 
-                                    value="{{ old('direcciones.1.direccion', optional($persona?->direcciones->where('id_tipo_direccion',1)->first())->direccion) }}">
-
-                                @error('direccion')
-                                    <span class="text-danger">{{ $message }}</span>
-                                @enderror
-                            </div>
-                        </div>
-
-                        <div class="row">
-                            <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
-                                <label>Referencia De Dirección</label>
-                                <input type="text" name="direcciones[1][referencia]" class="form-control"
-                                    value="{{ old('direcciones.1.referencia', optional($persona?->direcciones->where('id_tipo_direccion',1)->first())->referencia) }}">
-                                @error('referencia')
                                     <span class="text-danger">{{ $message }}</span>
                                 @enderror
                             </div>
@@ -288,15 +243,18 @@
                             </div>
                         </div>
 
-                        <!-- Agrega aquí los campos restantes -->
-
-                        <button type="submit" class="btn btn-primary">Siguiente</button>
+                        <div class="row" style="margin-top:10px;">
+                            <div style="display: flex; justify-content: right;">
+                                <button type="submit" class="btn btn-primary">Siguiente</button>
+                            </div>
+                        </div>
                     </form>
                 </div>
             </div>
         </div>
     </div>
 </div>
+
 
 <script src="{{asset('assets/extensions/flatpickr/flatpickr.min.js')}}"></script>
 <script src="{{asset('assets/extensions/flatpickr/l10n/es.js')}}"></script>
@@ -382,4 +340,6 @@
 
     });
 </script>
+
+
 @endsection

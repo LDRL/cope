@@ -22,9 +22,9 @@ return new class extends Migration
             $table->string('lugar_nacimiento');
 
             // Catálogos (relaciones)
-            $table->foreignId('nacionalidad_id')->constrained('nacionalidades');
-            $table->foreignId('etnia_id')->constrained('etnias');
-            $table->foreignId('estado_civil_id')->constrained('estado_civil');
+            $table->foreignId('id_nacionalidad')->nullable()->constrained('nacionalidades');
+            $table->foreignId('id_etnia')->nullable()->constrained('etnias');
+            $table->foreignId('id_estado_civil')->nullable()->constrained('estado_civil');
             
 
             // Información adicional
@@ -34,18 +34,13 @@ return new class extends Migration
             $table->integer('no_dependientes')->default(0);
             $table->decimal('porcentaje_de_aporte_familiar', 5, 2)->nullable();
 
-            // Contacto
-            $table->string('celular', 20)->nullable();
-            $table->string('numero_telefonico_casa', 20)->nullable();
-            $table->string('numero_telefonico_otro', 20)->nullable();
-
-            // Dirección
-            $table->text('direccion_domiciliar',254);
-            $table->text('referencia_de_direccion', 254)->nullable();
+            $table->string('lugar_trabajo', 100)->nullable();
+            $table->string('nombre_cargo', 100)->nullable();
+            $table->integer('ingreso_neto')->default(0);       
             $table->integer('tiempo_residencia')->nullable();
 
             //Casa donde vive
-            $table->foreignId('casa_tipo_id')->constrained('casa_tipo');
+            $table->foreignId('id_casa_tipo')->constrained('casa_tipo');
             $table->timestamps();
         });
     }

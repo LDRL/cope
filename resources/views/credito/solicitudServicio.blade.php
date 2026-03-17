@@ -16,6 +16,9 @@
                 <div class="card-body">
                     <form action="{{ route('solicitud-credito.servicio-financiero') }}" method="POST">
                         @csrf
+                        <input type="hidden" name="id" value="{{ $servicio->id ?? '' }}">
+                        <input type="hidden" name="id_persona" value="{{ $persona->id ?? '' }}">
+                        <input type="hidden" name="idPersonaServicio" value="{{$personaServicio->id ?? ''}}">
 
                         <div class="row">
                             <div class="col-lg-6 col-md-12 col-sm-12 col-xs-12">
@@ -51,10 +54,10 @@
 
                             <div class="col-lg-6 col-md-12 col-sm-12 col-xs-12">
                                 <label>Oficina</label>
-                                <select class="choices form-select" id="oficina_id" name="oficina_id">
+                                <select class="choices form-select" id="id_oficina" name="id_oficina">
                                 @if (isset($oficinas))
                                 @foreach($oficinas as $ofi)
-                                @if(isset($servicio) && $servicio->oficina_id == $ofi->id)
+                                @if(isset($servicio) && $servicio->id_oficina == $ofi->id)
                                 <option value="{{$ofi->id}}" selected="">{{$ofi->nombre}}</option>
                                 @else
                                 <option value="{{$ofi->id}}">{{$ofi->nombre}}</option>
@@ -64,7 +67,7 @@
                                 @endif
                                 </select>
 
-                                @error('oficina_id')
+                                @error('id_oficina')
                                     <span class="text-danger">{{ $message }}</span>
                                 @enderror
                             </div>
@@ -81,10 +84,10 @@
 
                             <div class="col-lg-6 col-md-12 col-sm-12 col-xs-12">
                                 <label>Destino</label>
-                                <select class="choices form-select" id="destino_id" name="destino_id">
+                                <select class="choices form-select" id="id_destino" name="id_destino">
                                 @if (isset($destinos))
                                 @foreach($destinos as $des)
-                                @if(isset($servicio) && $servicio->destino_id == $des->id)
+                                @if(isset($servicio) && $servicio->id_destino == $des->id)
                                 <option value="{{$des->id}}" selected="">{{$des->nombre}}</option>
                                 @else
                                 <option value="{{$des->id}}">{{$des->nombre}}</option>
@@ -94,7 +97,7 @@
                                 @endif
                                 </select>
 
-                                @error('destino_id')
+                                @error('id_destino')
                                     <span class="text-danger">{{ $message }}</span>
                                 @enderror
                             </div>
@@ -143,10 +146,10 @@
                         <div class="row">
                             <div class="col-lg-6 col-md-12 col-sm-12 col-xs-12">
                                 <label>Tipo de servicio financiero</label>
-                                <select class="choices form-select" id="tipo_servicio_id" name="tipo_servicio_id">
+                                <select class="choices form-select" id="id_tipo_servicio" name="id_tipo_servicio">
                                 @if (isset($tipoServicios))
                                 @foreach($tipoServicios as $tip)
-                                @if(isset($servicio) && $servicio->tipo_servicio_id == $tip->id)
+                                @if(isset($servicio) && $servicio->id_tipo_servicio == $tip->id)
                                 <option value="{{$tip->id}}" selected="">{{$tip->nombre}}</option>
                                 @else
                                 <option value="{{$tip->id}}">{{$tip->nombre}}</option>
@@ -156,7 +159,7 @@
                                 @endif
                                 </select>
 
-                                @error('tipo_servicio_id')
+                                @error('id_tipo_servicio')
                                     <span class="text-danger">{{ $message }}</span>
                                 @enderror
                             </div>
@@ -164,7 +167,7 @@
                             <div class="col-lg-6 col-md-12 col-sm-12 col-xs-12">
                                 <label>Producto</label>
                                 <div class="form-group">
-                                    <select class="choices form-select" id="producto_id" name="producto_id">
+                                    <select class="choices form-select" id="id_producto" name="id_producto">
                                     @if (isset($productos))
                                     @foreach($productos as $pro)
                                     @if(isset($servicio) && $servicio->producto_id == $pro->id)
@@ -176,7 +179,7 @@
                                     @endif
                                     </select>
 
-                                    @error('producto_id')
+                                    @error('id_producto')
                                         <span class="text-danger">{{ $message }}</span>
                                     @enderror
                                 </div>

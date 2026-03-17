@@ -59,7 +59,7 @@
                             
                             <ul class="submenu ">
                                 <li class="submenu-item  ">
-                                    <a href="{{url('credito/servicio-financiero')}}" class="submenu-link">Solicitud</a>
+                                    <a href="{{url('credito/solicitud-datosGenerales')}}" class="submenu-link">Solicitud</a>
                                 </li>
                                 <li class="submenu-item  ">
                                     <a href="{{url('credito/index')}}" class="submenu-link">Listado</a>

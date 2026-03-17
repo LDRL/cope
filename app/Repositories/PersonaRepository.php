@@ -11,6 +11,9 @@ class PersonaRepository implements PersonaRepositoryInterface
     public function getPersonasPaginated($perPage = 10)
     {
         return Persona::with('personaServicio.servicioFinanciero')
+                ->whereHas('personaServicio', function($query) {
+                    $query->where('id_tipo_persona', 1);
+                })
                 ->orderBy('id','desc')
                 ->paginate($perPage);
     }

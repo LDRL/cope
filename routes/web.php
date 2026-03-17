@@ -33,20 +33,31 @@ Route::prefix('catalogos')->group(function () {
 
 Route::prefix('credito')->group(function () {
     Route::get('index', [SolicitudController::class, 'index']);
-	Route::get('servicio-financiero', [SolicitudController::class, 'mostrarPaso1'])->name('solicitud-credito.servicio-financiero');
-    Route::post('servicio-financiero', [SolicitudController::class, 'paso1']);
 
+    Route::post('solicitud-datosGenerales', [SolicitudController::class, 'paso1']);
+    Route::get('solicitud-datosGenerales/{id?}', [SolicitudController::class, 'mostrarPaso1'])
+    ->name('solicitud-credito.datos-generales');
 
     //Paso 2
-    Route::post('solicitud-datosGenerales', [SolicitudController::class, 'paso2']);
-    Route::get('solicitud-datosGenerales/{id?}', [SolicitudController::class, 'mostrarPaso2'])
-    ->name('solicitud-credito.datos-generales');
+
+    Route::post('servicio-financiero', [SolicitudController::class, 'paso2']);
+	Route::get('servicio-financiero/{id?}', [SolicitudController::class, 'mostrarPaso2'])->name('solicitud-credito.servicio-financiero');
     
     
     //Paso 3
     Route::post('solicitud-datosEmprendimiento', [SolicitudController::class, 'paso3']);
     Route::get('solicitud-datosEmprendimiento/{idPersona?}/{idServicioFinanciero?}', [SolicitudController::class, 'mostrarPaso3'])
     ->name('solicitud-credito.datos-emprendimiento');
+
+    //Paso 4
+    Route::post('solicitud-datosConyugue', [SolicitudController::class, 'paso4']);
+    Route::get('solicitud-datosConyugue/{idServicioFinanciero?}', [SolicitudController::class, 'mostrarPaso4'])
+    ->name('solicitud-credito.datos-conyugue');
+
+    //Paso 5
+    Route::post('solicitud-datosFiador', [SolicitudController::class, 'paso5']);
+    Route::get('solicitud-datosFiador/{idServicioFinanciero?}', [SolicitudController::class, 'mostrarPaso5'])
+    ->name('solicitud-credito.datos-fiador');
 
 });
 

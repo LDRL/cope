@@ -13,21 +13,20 @@ class Persona extends Model
         'sexo',
         'edad',
         'lugar_nacimiento',
-        'nacionalidad_id',
-        'etnia_id',
-        'estado_civil_id',
+        'id_nacionalidad',
+        'id_etnia',
+        'id_estado_civil',
         'numero_dpi',
         'profesion_oficio',
         'ocupacion_actual',
         'no_dependientes',
         'porcentaje_de_aporte_familiar',
-        'celular',
-        'numero_telefonico_casa',
-        'numero_telefonico_otro',
-        'direccion_domiciliar',
-        'referencia_de_direccion',
         'tiempo_residencia',
-        'casa_tipo_id'
+        'id_casa_tipo',
+        'lugar_trabajo',
+        'nombre_cargo',
+        'ingreso_neto'
+       
     ];
 
     // Relaciones
@@ -52,8 +51,8 @@ class Persona extends Model
         return $this->belongsToMany(
             ServicioFinanciero::class,
             'persona_servicio', // nombre de la tabla pivote
-            'persona_id',       // clave foránea de esta tabla
-            'servicio_financiero_id' // clave foránea del otro modelo
+            'id_persona',       // clave foránea de esta tabla
+            'id_servicio_financiero' // clave foránea del otro modelo
         )->withTimestamps(); // si quieres usar created_at/updated_at
     }
 
@@ -61,5 +60,26 @@ class Persona extends Model
     public function personaServicio()
     {
         return $this->hasOne(PersonaServicio::class, 'id_persona');
+    }
+
+    // Relacion con persona telefono
+    public function tipoTelefono()
+    {
+        return $this->belongsToMany(
+            TipoTelefono::class,
+            'persona_telefono',
+            'id_persona',
+            'id_tipo_telefono'
+        )->withTimestamps();
+    }
+
+    public function telefonos()
+    {
+        return $this->hasMany(PersonaTelefono::class, 'id_persona');
+    }
+
+    public function direcciones()
+    {
+        return $this->hasMany(PersonaDireccion::class, 'id_persona');
     }
 }

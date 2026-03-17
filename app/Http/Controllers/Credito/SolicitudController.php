@@ -22,6 +22,7 @@ use App\Repositories\ProductoRepository;
 use App\Repositories\NacionalidadRepository;
 use App\Repositories\EstadoCivilRepository;
 use App\Repositories\EtniaRepository;
+use App\Repositories\TipoTelefonoRepository;
 
 use App\Services\Credito\SolicitudService;
 
@@ -40,6 +41,7 @@ class SolicitudController extends Controller
     protected $aspectoFormalizacionRepo;
     protected $personaRepo;
     protected $solicitudService;
+    protected $tipoTelefonoRepo;
 
     public function __construct(
         OficinaRepository $oficinaRepo,
@@ -54,7 +56,8 @@ class SolicitudController extends Controller
         RedesSociales $redSocialReppo,
         AspectoFormalizacion $aspectoFormalizacionRepo,
         PersonaRepositoryInterface $personaRepo,
-        SolicitudService $solicitudService
+        SolicitudService $solicitudService,
+        TipoTelefonoRepository $tipoTelefonoRepo
     ){
         $this->oficinaRepo = $oficinaRepo;
         $this->destinoRepo = $destinoRepo;
@@ -69,6 +72,7 @@ class SolicitudController extends Controller
         $this->aspectoFormalizacionRepo = $aspectoFormalizacionRepo;
         $this->personaRepo = $personaRepo;
         $this->solicitudService = $solicitudService;
+        $this->tipoTelefonoRepo = $tipoTelefonoRepo;
     }
 
     // =======================
@@ -81,78 +85,36 @@ class SolicitudController extends Controller
     }
 
     // =======================
-    // PASO 1: Mostrar formulario de Servicio Financiero
+    // PASO 1: Mostrar formulario de Persona
     // =======================
-    public function mostrarPaso1()
+    public function mostrarPaso1($id = null)
     {
-        $servicio = null;
-        if(session()->has('servicio_financiero_id')){
-            $servicio = ServicioFinanciero::find(session('servicio_financiero_id'));
-        }
-
-        $oficinas = $this->oficinaRepo->all();
-        $destinos = $this->destinoRepo->all();
-        $tipoServicios = $this->tipoServicioRepo->all();
-        $productos = $this->productoRepo->all();
-
-        return view('credito.solicitudServicio', compact(
-            'servicio', 'oficinas','destinos','tipoServicios','productos'
-        ));
-    }
-
-    // PASO 1: Guardar Servicio Financiero
-    public function paso1(Request $request)
-    {
-        $validated = $request->validate([
-            'no_beneficiario' => 'required|string|max:100',
-            'no_servicio' => 'required|string|max:100',
-            'fecha_solicitud' => 'required|date',
-            'oficina_id' => 'required',
-            'monto' => 'required',
-            'plazo' => 'required',
-            'tasa' => 'required',
-            'destino_id' => 'required',
-            'periodo_gracia' => 'required|string',
-            'tipo_servicio_id' => 'required',
-            'producto_id' => 'required',
-        ]);
-
-        $validated['estado'] = "datos_generales";
-
-        $servicio = $this->solicitudService->guardarServicio($validated, $request->id);
-
-        return redirect()->route('solicitud-credito.datos-generales', $servicio->id);
-    }
-
-    // =======================
-    // PASO 2: Mostrar formulario de Persona
-    // =======================
-    public function mostrarPaso2($id = null)
-    {
-        $servicio = ServicioFinanciero::find($id);
-        $persona = Persona::find($servicio->persona_id ?? null);
+        //$servicio = ServicioFinanciero::find($id);
+        $persona = Persona::find($id ?? null);
 
         $nacionalidades = $this->nacionalidadRepo->all();
         $etnias = $this->etniaRepo->all();
         $estadoCivil = $this->estadoCivilRepo->all();
         $casaTipo = $this->casaRepo->all();
+        $tipoTelefonos = $this->tipoTelefonoRepo->all();
 
         $personaServicio = null;
-        if($persona){
+        /*if($persona){
             $personaServicio = DB::table('persona_servicio')
                 ->select('id')
                 ->where('id_persona','=',$persona->id)
                 ->where('id_tipo_persona','=',1)
                 ->first();
-        }
+        }*/
 
         return view('credito.solicitud', compact(
-            'servicio', 'nacionalidades','etnias','estadoCivil','casaTipo','persona','personaServicio'
+            'persona', 'nacionalidades','etnias',
+            'estadoCivil','casaTipo','tipoTelefonos'
         ));
     }
 
-    // PASO 2: Guardar Persona y vincular Servicio
-    public function paso2(Request $request)
+    // PASO 1: Guardar Persona y vincular Servicio
+    public function paso1(Request $request)
     {
         $validated = $request->validate([
             'nombre' => 'required|string|max:50',
@@ -160,33 +122,124 @@ class SolicitudController extends Controller
             'fecha_nacimiento' => 'required|date',
             'sexo' => 'required',
             'lugar_nacimiento' => 'required',
-            'nacionalidad_id' => 'required',
-            'etnia_id' => 'required',
-            'estado_civil_id' => 'required',
+            'id_nacionalidad' => 'required',
+            'id_etnia' => 'required',
+            'id_estado_civil' => 'required',
             'numero_dpi' => 'required|string|max:13',
             'profesion_oficio' => 'required',
             'ocupacion_actual' => 'required',
-            'celular' => 'required|digits:8',
-            'numero_telefonico_casa' => 'nullable|digits:8',
-            'numero_telefonico_otro' => 'nullable|digits:8',
-            'direccion_domiciliar' => 'required',
-            'referencia_de_direccion' => 'required',
             'tiempo_residencia' => 'required',
-            'casa_tipo_id' => 'required'
+            'id_casa_tipo' => 'required',
+
+            'telefonos_tipo' => 'nullable|array',
+            'telefonos_tipo.*' => 'exists:tipo_telefono,id',
+            'telefonos_numero' => 'nullable|array',
+            'telefonos_numero.*' => 'digits:8',
+
+            'porcentaje_de_aporte_familiar' => 'required',
         ]);
 
         $persona = $this->solicitudService->guardarPersona($validated, $request->id);
 
-        $this->solicitudService->vincularPersonaServicio(
+        $this->solicitudService->guardarDireccionPersona($persona, $request);
+
+        if ($request->has('telefonos_tipo')) {
+            $this->solicitudService->guardarTelefonosPersona($persona, $request);
+        }
+
+        /*$this->solicitudService->vincularPersonaServicio(
             $persona->id,
-            $request->servicio_id,
+            $request->id_servicio,
+            $request->idPersonaServicio
+        );*/
+
+        
+        return redirect()->route(
+            'solicitud-credito.servicio-financiero',
+            [$persona->id, $request->id_servicio]
+        );
+    }
+
+    // =======================
+    // PASO 2: Mostrar formulario de Servicio Financiero y vincular persona
+    // =======================
+    public function mostrarPaso2($id = null)
+    {
+        //$servicio = null;
+        /*if(session()->has('id_servicio_financiero')){
+            $servicio = ServicioFinanciero::find(session('id_servicio_financiero'));
+        }*/
+
+        $persona = Persona::find($id);
+        $personaServicio = DB::table('persona_servicio')->select('id_servicio_financiero','id')
+        ->where('id_tipo_persona','=',1)
+        ->first();
+
+        //$servicio = ServicioFinanciero::find($id);
+
+        $servicio = null;
+        if($personaServicio){
+            $servicio = ServicioFinanciero::find($personaServicio->id_servicio_financiero);
+        }
+
+        
+        //$persona = Persona::find($servicio->persona_id ?? null);
+
+        /*$personaServicio = null;
+        if($persona){
+            $personaServicio = DB::table('persona_servicio')
+                ->select('id')
+                ->where('id_persona','=',$persona->id)
+                ->where('id_tipo_persona','=',1)
+                ->first();
+        }*/
+
+        $oficinas = $this->oficinaRepo->all();
+        $destinos = $this->destinoRepo->all();
+        $tipoServicios = $this->tipoServicioRepo->all();
+        $productos = $this->productoRepo->all();
+
+        return view('credito.solicitudServicio', compact(
+            'servicio', 'oficinas','destinos','tipoServicios','productos','persona','personaServicio'
+        ));
+    }
+
+    // PASO 2: Guardar Servicio Financiero
+    public function paso2(Request $request)
+    {
+        $validated = $request->validate([
+            'no_beneficiario' => 'required|string|max:100',
+            'no_servicio' => 'required|string|max:100',
+            'fecha_solicitud' => 'required|date',
+            'id_oficina' => 'required',
+            'monto' => 'required',
+            'plazo' => 'required',
+            'tasa' => 'required',
+            'id_destino' => 'required',
+            'periodo_gracia' => 'required|string',
+            'id_tipo_servicio' => 'required',
+            'id_producto' => 'required',
+        ]);
+
+        $validated['estado'] = "datos_generales";
+
+        $servicio = $this->solicitudService->guardarServicio($validated, $request->id);
+
+        //dd($request);
+
+        $this->solicitudService->vincularPersonaServicio(
+            $request->id_persona,    
+            $servicio->id,
+            1,
             $request->idPersonaServicio
         );
 
         return redirect()->route(
             'solicitud-credito.datos-emprendimiento',
-            [$persona->id, $request->servicio_id]
+            [$request->id_persona, $servicio->id]
         );
+
+        //return redirect()->route('solicitud-credito.datos-generales', $servicio->id);
     }
 
     // =======================
@@ -224,10 +277,10 @@ class SolicitudController extends Controller
             'constituida_legalmente' => 'nullable|string',
             'empleado_masculino' => 'nullable|integer|min:0',
             'empleado_femenino' => 'nullable|integer|min:0',
-            'establecida_casa' => 'nullable|string',
-            'tiene_sucursales' => 'nullable|string',
+            'establecida_casa' => 'required|string',
+            'tiene_sucursales' => 'required|string',
             'plataformas' => 'nullable|string|max:255',
-            'negocio_por_internet' => 'nullable|string',
+            'negocio_por_internet' => 'required|string',
             'programa_rngg' => 'nullable|string|max:255',
             'aspectos' => 'nullable|array',
             'aspectos.*' => 'integer|exists:aspecto_formalizacion,id',
@@ -235,6 +288,232 @@ class SolicitudController extends Controller
             'redes.*' => 'integer|exists:redes_sociales,id',
         ]);
 
+        //dd($request);
+
         $this->solicitudService->guardarEmprendimiento($request);
+        $idServicio = $request->id_servicio;
+
+        return redirect()->route(
+            'solicitud-credito.datos-conyugue',
+            $idServicio
+        );
     }
+
+    //Mostrar paso 4
+    //Mostrar datos del conyugue 
+    public function mostrarPaso4($idServicio = null)
+    {
+        $nacionalidades = $this->nacionalidadRepo->all();
+        $estadoCivil = $this->estadoCivilRepo->all();
+        $casaTipo = $this->casaRepo->all();
+        $tipoTelefonos = $this->tipoTelefonoRepo->all();
+        
+        $persona = null;
+        $telefonos = null;
+        $direcciones = null;
+
+        $conyugueServicio  = DB::table('persona_servicio')
+            ->select('id','id_persona')
+            ->where('id_servicio_financiero','=',$idServicio)
+            ->where('id_tipo_persona','=',2)
+            ->first();
+       
+        if($conyugueServicio){
+            $persona = Persona::find($conyugueServicio->id_persona ?? null);
+            $telefonos = $persona?->telefonos;
+            $direcciones = $persona?->direcciones;
+            //$telefonos = $conyugue?->telefonos()->with('tipoTelefono')->get();
+        }
+
+        //$persona = Persona::find(6);
+        return view('credito.solicitudConyugue', compact(
+            'nacionalidades',
+            'estadoCivil',
+            'casaTipo',
+            'idServicio',
+            'conyugueServicio',
+            'telefonos',
+            'direcciones',
+            'tipoTelefonos',
+            'persona'
+        ));
+    }
+
+     // PASO 3: Guardar Conyugue
+    public function paso4(Request $request)
+    {                
+        $request->validate([
+            'nombre' => 'required|string|max:40',
+            'apellido' => 'required|string|max:40',
+            'fecha_nacimiento' => 'required|date',
+            'sexo' => 'required',
+            'lugar_nacimiento' => 'required',
+            'id_nacionalidad' => 'required',
+            'id_estado_civil' => 'required',
+            'numero_dpi' => 'required|string|max:13',
+            'profesion_oficio' => 'required',
+            'ocupacion_actual' => 'required',
+            
+
+            // 🔥 DIRECCIONES
+            'direcciones' => 'required|array',
+
+            // domiciliar (tipo 1)
+            'direcciones.1.direccion' => 'required|string',
+            'direcciones.1.referencia' => 'required|string',
+
+            'id_casa_tipo' => 'required',
+            //'telefonos_tipo.*' => 'required|exists:tipo_telefono,id',
+            //'telefonos_numero.*' => 'required|digits:8'
+
+            'telefonos_tipo' => 'nullable|array',
+            'telefonos_tipo.*' => 'exists:tipo_telefono,id',
+            'telefonos_numero' => 'nullable|array',
+            'telefonos_numero.*' => 'digits:8'
+        ]);
+
+
+        $personaConyugue = $this->solicitudService->guardarPersona($request->only([
+            'nombre',
+            'apellido',
+            'numero_dpi',
+            'sexo',
+            'fecha_nacimiento',
+            'lugar_nacimiento',
+            'id_nacionalidad',
+            'id_estado_civil',
+            'profesion_oficio',
+            'ocupacion_actual',
+            'id_casa_tipo'
+        ]), $request->id_persona);
+
+        $this->solicitudService->vincularPersonaServicio(
+            $personaConyugue->id,    
+            $request->id_servicio,
+            2,
+            $request->personaServicioId
+        );
+        
+       
+        $this->solicitudService->guardarDireccionPersona($personaConyugue, $request);
+
+        if ($request->has('telefonos_tipo')) {
+            $this->solicitudService->guardarTelefonosPersona($personaConyugue, $request);
+        }
+
+        //$this->solicitudService->guardarTelefonosPersona($personaConyugue, $request);
+        $idServicio = $request->id_servicio;
+        return redirect()->route(
+            'solicitud-credito.datos-fiador',
+            $idServicio
+        );
+    }
+
+    //Mostrar paso 5
+    //Mostrar datos del fiador
+    public function mostrarPaso5($idServicio = null)
+    {
+        $persona = null;
+        $nacionalidades = $this->nacionalidadRepo->all();
+        $estadoCivil = $this->estadoCivilRepo->all();
+        $casaTipo = $this->casaRepo->all();
+        $tipoTelefonos = $this->tipoTelefonoRepo->all();
+        
+        $fiadorServicio  = DB::table('persona_servicio')
+            ->select('id','id_persona')
+            ->where('id_servicio_financiero','=',$idServicio)
+            ->where('id_tipo_persona','=',3)
+            ->first();
+
+        if($fiadorServicio){
+            $persona = Persona::find($fiadorServicio->id_persona ?? null);
+        }
+
+        //$persona = Persona::find(6);
+        return view('credito.solicitudFiador', compact(
+            'nacionalidades',
+            'estadoCivil',
+            'casaTipo',
+            'idServicio',
+            'fiadorServicio',
+            'tipoTelefonos',
+            'persona'
+        ));
+    }
+
+     // PASO 3: Guardar Conyugue
+    public function paso5(Request $request)
+    {
+        $request->validate([
+            'nombre' => 'required|string|max:40',
+            'apellido' => 'required|string|max:40',
+            'fecha_nacimiento' => 'required|date',
+            'sexo' => 'required',
+            'lugar_nacimiento' => 'required',
+            'id_nacionalidad' => 'required',
+            'id_estado_civil' => 'required',
+            'numero_dpi' => 'required|string|max:13',
+            'profesion_oficio' => 'required',
+            'ocupacion_actual' => 'required',
+            
+            // domiciliar (tipo 1)
+            'direcciones.1.direccion' => 'required|string',
+            'direcciones.1.referencia' => 'required|string',
+
+            // laboral (tipo 2)
+            'direcciones.2.direccion' => 'required|string',
+
+            'id_casa_tipo' => 'required',
+            //'telefonos_tipo.*' => 'required|exists:tipo_telefono,id',
+            //'telefonos_numero.*' => 'required|digits:8'
+
+            'telefonos_tipo' => 'nullable|array',
+            'telefonos_tipo.*' => 'exists:tipo_telefono,id',
+            'telefonos_numero' => 'nullable|array',
+            'telefonos_numero.*' => 'digits:8',
+            'lugar_trabajo' =>'required|string',
+            'nombre_cargo' => 'required|string',
+            'ingreso_neto' => 'required'
+        ]);
+
+        //dd($request);
+
+        $personaConyugue = $this->solicitudService->guardarPersona($request->only([
+            'nombre',
+            'apellido',
+            'numero_dpi',
+            'sexo',
+            'fecha_nacimiento',
+            'lugar_nacimiento',
+            'id_nacionalidad',
+            'id_estado_civil',
+            'profesion_oficio',
+            'ocupacion_actual',
+            'id_casa_tipo',
+            'lugar_trabajo',
+            'nombre_cargo',
+            'ingreso_neto'
+        ]), $request->id_persona);
+
+        $this->solicitudService->vincularPersonaServicio(
+            $personaConyugue->id,    
+            $request->id_servicio,
+            3,
+            $request->personaServicioId
+        );
+        
+        $this->solicitudService->guardarDireccionPersona($personaConyugue, $request);
+
+        if ($request->has('telefonos_tipo')) {
+            $this->solicitudService->guardarTelefonosPersona($personaConyugue, $request);
+        }
+
+        //$this->solicitudService->guardarTelefonosPersona($personaConyugue, $request);
+        $idServicio = $request->id_servicio;
+        return redirect()->route(
+            'solicitud-credito.datos-fiador',
+            $idServicio
+        );
+    }
+
 }

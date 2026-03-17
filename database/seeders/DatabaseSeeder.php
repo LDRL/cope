@@ -2,7 +2,6 @@
 
 namespace Database\Seeders;
 
-use App\Models\User;
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 
@@ -30,7 +29,9 @@ class DatabaseSeeder extends Seeder
             ActividadEconomicaSeeder::class,
             AspectoFormalizacionSeeder::class,
             RedesSocialesSeeder::class,
-            TipoPersonaSeeder::class
+            TipoPersonaSeeder::class,
+            TipoTelefonoSeeder::class,
+            TipoDireccionSeeder::class
         ]);
     }
 }

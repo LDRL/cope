@@ -26,7 +26,7 @@ return new class extends Migration
             $table->string('establecida_casa',3); // Establecida en su casa
             $table->string('negocio_por_internet',3); // Ha realizado negocios por internet
             $table->string('plataformas',100);
-            $table->string('programa_rngg',100);
+            $table->string('programa_rngg',100)->nullable();
             $table->unsignedBigInteger('id_persona'); // foreign key a catalogo
             $table->unsignedBigInteger('id_servicio_financiero'); // foreign key a catalogo
 

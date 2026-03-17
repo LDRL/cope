@@ -12,12 +12,14 @@ class ServicioFinanciero extends Model
         'no_beneficiario',
         'no_servicio',
         'fecha_solicitud',
-        'oficina_id',
+        'id_oficina',
         'monto',
-        'destino_id',
+        'id_destino',
         'periodo_gracia',
-        'tipo_servicio_id',
-        'producto_id',
+        'id_tipo_servicio',
+        'id_producto',
+        'plazo',
+        'tasa',
         'estado'
     ];
 
@@ -27,8 +29,8 @@ class ServicioFinanciero extends Model
         return $this->belongsToMany(
             Persona::class,
             'persona_servicio',
-            'servicio_financiero_id',
-            'persona_id'
+            'id_servicio_financiero',
+            'id_persona'
         )->withTimestamps();
     }
 }
